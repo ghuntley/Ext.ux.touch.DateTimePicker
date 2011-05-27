@@ -277,3 +277,45 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
 });
 
 Ext.reg('datetimepicker', Ext.ux.touch.DateTimePicker);
+
+Ext.ux.touch.DateTimePickerField = Ext.extend(Ext.form.Text, {
+    ui: 'select',
+    
+    // @cfg {Boolean} useMask @hide
+    useMask: true,
+
+    monitorOrientation: true,
+    
+    // @private
+    initComponent: function() {
+        this.picker = new Ext.ux.touch.DateTimePicker({
+            useTitles: true,
+            value: this.value,
+            listeners: {
+                scope: this,
+                hide: function(picker) {
+                    this.setValue(picker.getValue());
+                }   
+            }   
+        });
+
+        Ext.ux.touch.DateTimePickerField.superclass.initComponent.call(this);
+
+        this.addEvents('change');
+    },
+
+    // @private
+    onMaskTap: function() {
+        if (this.disabled) {
+            return;
+        }
+        this.picker.show();
+    },
+    destroy: function() {
+        Ext.ux.touch.DateTimePickerField.superclass.destroy.apply(this, arguments);
+        Ext.destroy(this.picker);
+    }
+});
+
+Ext.reg('datetimepickerfield', Ext.ux.touch.DateTimePickerField);
+
