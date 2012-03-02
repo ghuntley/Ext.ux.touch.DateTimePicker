@@ -71,7 +71,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
      * @cfg {Array} slotOrder
      * An array of strings that specifies the order of the slots. Defaults to <tt>['month', 'day', 'year']</tt>.
      */
-    slotOrder: this.showYears ? ['month', 'day', 'year', 'hour', 'minute', 'daynight'] : ['month', 'day', 'hour', 'minute', 'daynight'],
+    slotOrder: [], //this.showYears ? [, 'year', 'hour', 'minute', 'daynight'] : ['month', 'day', 'hour', 'minute', 'daynight'],
 
     initComponent: function() {
         var yearsFrom = this.yearFrom,
@@ -83,6 +83,13 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             minutes = [],
             daynight = [],
             ln, tmp, i, daysInMonth;
+
+		this.slotOrder.push('month', 'day');
+		if (this.showYears) {
+			this.slotOrder.push('year');
+		}
+
+		this.slotOrder.push('hour', 'minute', 'daynight');
 
         // swap values if user mixes them up.
         if (yearsFrom > yearsTo) {
@@ -154,7 +161,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 };
             } else if (Ext.isObject(value)) {
                 this.value = value;
-            };
+            }
         }
         Ext.ux.touch.DateTimePicker.superclass.initComponent.call(this);
     },
@@ -175,7 +182,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 align: 'right',
                 data: months,
                 title: this.useTitles ? this.monthText : false,
-                flex: this.showYears ? 4 : 3
+                    flex: this.showYears ? 3 : 4
             };
         case 'day':
             return {
