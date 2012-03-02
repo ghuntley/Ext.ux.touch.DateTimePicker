@@ -1,5 +1,11 @@
 Ext.ns('Ext.ux.touch');
 Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
+
+	/**
+	 * @cfg {Number} minuteScale
+	 * The distance between minute's timestamps the date time picker.  Defaults to 5
+	 */
+	minuteScale: 5,
     /**
      * @cfg {Number} yearFrom
      * The start year for the date picker.  Defaults to 1980
@@ -115,7 +121,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             });
         }
 
-        for (i = 0; i < 60; i += 5) {
+        for (i = 0; i < 60; i += this.minuteScale) {
             minutes.push({
                 text: i < 10 ? '0' + i : i,
                 value: i
@@ -267,8 +273,8 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
 		now_values['month'] = now_date.getMonth() + 1;
 		now_values['day'] = now_date.getDate();
 		var mins = now_date.getMinutes();
-		if ( mins % 5 > 0 ) {
-			mins = mins + ( 5 - (mins % 5) );
+        if ( mins % this.minuteScale > 0 ) {
+            mins = mins + ( this.minuteScale - (mins % this.minuteScale) );
 		}
 		now_values['minute'] = mins;
 		if ( mins === 0 && now_date.getMinutes() > 0 ) {
