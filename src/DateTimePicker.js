@@ -1,5 +1,11 @@
 Ext.ns('Ext.ux.touch');
 Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
+
+	/**
+	 * @cfg {Number} minuteScale
+	 * The distance between minute's timestamps the date time picker.  Defaults to 5
+	 */
+	minuteScale: 5,
     /**
      * @cfg {Number} yearFrom
      * The start year for the date picker.  Defaults to 1980
@@ -65,7 +71,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
      * @cfg {Array} slotOrder
      * An array of strings that specifies the order of the slots. Defaults to <tt>['month', 'day', 'year']</tt>.
      */
-    slotOrder: this.showYears ? ['month', 'day', 'year', 'hour', 'minute', 'daynight'] : ['month', 'day', 'hour', 'minute', 'daynight'],
+    slotOrder: [], //this.showYears ? [, 'year', 'hour', 'minute', 'daynight'] : ['month', 'day', 'hour', 'minute', 'daynight'],
 
     initComponent: function() {
         var yearsFrom = this.yearFrom,
@@ -77,6 +83,13 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             minutes = [],
             daynight = [],
             ln, tmp, i, daysInMonth;
+
+		this.slotOrder.push('month', 'day');
+		if (this.showYears) {
+			this.slotOrder.push('year');
+		}
+
+		this.slotOrder.push('hour', 'minute', 'daynight');
 
         // swap values if user mixes them up.
         if (yearsFrom > yearsTo) {
@@ -115,7 +128,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             });
         }
 
-        for (i = 0; i < 60; i += 5) {
+        for (i = 0; i < 60; i += this.minuteScale) {
             minutes.push({
                 text: i < 10 ? '0' + i : i,
                 value: i
@@ -148,7 +161,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 };
             } else if (Ext.isObject(value)) {
                 this.value = value;
-            };
+            }
         }
         Ext.ux.touch.DateTimePicker.superclass.initComponent.call(this);
     },
@@ -169,7 +182,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 align: 'right',
                 data: months,
                 title: this.useTitles ? this.monthText : false,
-                flex: this.showYears ? 4 : 3
+                    flex: this.showYears ? 3 : 4
             };
         case 'day':
             return {
@@ -267,8 +280,8 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
 		now_values['month'] = now_date.getMonth() + 1;
 		now_values['day'] = now_date.getDate();
 		var mins = now_date.getMinutes();
-		if ( mins % 5 > 0 ) {
-			mins = mins + ( 5 - (mins % 5) );
+        if ( mins % this.minuteScale > 0 ) {
+            mins = mins + ( this.minuteScale - (mins % this.minuteScale) );
 		}
 		now_values['minute'] = mins;
 		if ( mins === 0 && now_date.getMinutes() > 0 ) {
