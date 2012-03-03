@@ -182,7 +182,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 align: 'right',
                 data: months,
                 title: this.useTitles ? this.monthText : false,
-                    flex: this.showYears ? 3 : 4
+                    flex: this.showYears ? 4 : 3
             };
         case 'day':
             return {
@@ -302,6 +302,8 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 items[i].setValue(0);
             }
             return this;
+        } else if (Ext.isDate(values)){
+            this.setToDate(values, animated);
         }
         daynightVal = 'AM';
         for (key in values) {
@@ -374,7 +376,7 @@ Ext.form.DateTimePicker = Ext.extend(Ext.form.Field, {
         
         this.getDatePicker().show();
 		if ( this.init_to_now ) {
-			this.getDatePicker().setToDate(new Date());
+            this.getDatePicker().setToDate(new Date());
 		}
     },
     
