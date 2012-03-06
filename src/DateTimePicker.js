@@ -84,6 +84,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             daynight = [],
             ln, tmp, i, daysInMonth;
 
+        this.slotOrder = [];
 		this.slotOrder.push('month', 'day');
 		if (this.showYears) {
 			this.slotOrder.push('year');
@@ -401,8 +402,9 @@ Ext.form.DateTimePicker = Ext.extend(Ext.form.Field, {
         }
         
         this.getDatePicker().show();
-		if ( this.init_to_now ) {
+        if ( this.init_to_now && !this.inited) {
             this.getDatePicker().setToDate(new Date());
+            this.inited = true;
 		}
     },
     
