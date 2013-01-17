@@ -84,6 +84,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
             daynight = [],
             ln, tmp, i, daysInMonth;
 
+        this.slotOrder = [];
 		this.slotOrder.push('month', 'day');
 		if (this.showYears) {
 			this.slotOrder.push('year');
@@ -182,7 +183,7 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 align: 'right',
                 data: months,
                 title: this.useTitles ? this.monthText : false,
-                    flex: this.showYears ? 3 : 4
+                    flex: this.showYears ? 4 : 3
             };
         case 'day':
             return {
@@ -247,20 +248,16 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
     getValue: function() {
         var value = Ext.ux.touch.DateTimePicker.superclass.getValue.call(this),
             daysInMonth = this.getDaysInMonth(value.month, value.year),
-            day = Math.min(value.day, daysInMonth);
-        if (value.daynight === 'PM') {
-            value.hour += 12;
+            day = Math.min(value.day, daysInMonth),
+            hours = value.hour;
+
+        if (hours === 12) {
+            hours = 0;
         }
-		if ( this.showYears ) {
-	        return new Date(value.year, value.month - 1, day, value.hour, value.minute);
-		} else {
-			var cur_date = new Date();
-			var full_year = cur_date.getFullYear();
-			if ( value.month -1  < cur_date.getMonth() ) {
-				full_year = full_year + 1;
-			}
-			return new Date(full_year, value.month - 1, day, value.hour, value.minute);
+        if (value.daynight === 'PM') {
+            hours += 12;
 		}
+        return new Date(this.showYears ? value.year: new Date().getFullYear(), value.month - 1, day, hours, value.minute);
     },
 
     // @private
@@ -276,25 +273,47 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
 
 	setToDate: function(now_date) {
 		var now_values = {};
-		now_values['year'] = now_date.getFullYear();
-		now_values['month'] = now_date.getMonth() + 1;
-		now_values['day'] = now_date.getDate();
-		var mins = now_date.getMinutes();
-        if ( mins % this.minuteScale > 0 ) {
-            mins = mins + ( this.minuteScale - (mins % this.minuteScale) );
+        var minutes = now_date.getMinutes();
+        var hours = now_date.getHours();
+        var day = now_date.getDate();
+        var month = now_date.getMonth();
+        var year = now_date.getFullYear();
+
+        if ( minutes % this.minuteScale > 0 ) {
+            minutes = minutes + ( this.minuteScale - (minutes % this.minuteScale) );
+        }
+        if ( minutes > 59 ) {
+            minutes = 0;
+            hours += 1;
+        }
+        if (hours > 23) {
+            hours = 0;
+            day += 1;
 		}
-		now_values['minute'] = mins;
-		if ( mins === 0 && now_date.getMinutes() > 0 ) {
-			now_values['hour'] = now_date.getHours() + 1;
-		} else {
-			now_values['hour'] = now_date.getHours();
-		}
+        if (day > this.getDaysInMonth(month + 1, year)) {
+            day = 1;
+            month +=1;
+        }
+        if (month > 11) {
+            month = 0;
+            year += 1;
+        }
+
+        Ext.apply(now_values,{
+            minute: minutes,
+            hour: hours,
+            day: day,
+            month: month + 1,
+            year: year
+        });
+
 		this.setValue(now_values);
 	},
 	
     setValue: function(values, animated) {
-        var key, slot, items = this.items.items,
-            ln = items.length;
+        var slot, items = this.items.items,
+            ln = items.length,
+            daynightVal = 'AM';
 
         // Value is an object with keys mapping to slot names
         if (!values) {
@@ -302,18 +321,28 @@ Ext.ux.touch.DateTimePicker = Ext.extend(Ext.Picker, {
                 items[i].setValue(0);
             }
             return this;
+        } else if (Ext.isDate(values)){
+            this.setToDate(values, animated);
+            return;
         }
-        daynightVal = 'AM';
-        for (key in values) {
-            slot = this.child('[name=' + key + ']');
+
+        var me = this;
+        Ext.iterate (values, function(key, value) {
+            slot = me.child('[name=' + key + ']');
             if (slot) {
-                if (key === 'hour' && values[key] > 12) {
+                if (key === 'hour') {
+                    if (value >= 12){
                     daynightVal = 'PM';
-                    values[key] -= 12;
                 }
-                slot.setValue(values[key], animated);
+                    if (value === 0) {
+                        value = 12; // 12 AM
+                    } else if (value > 12){
+                        value -= 12;
             }
         }
+                slot.setValue(value, animated);
+            }
+        });
         slot = this.child('[name=daynight]');
         slot.setValue(daynightVal, animated);
         return this;
@@ -373,8 +402,9 @@ Ext.form.DateTimePicker = Ext.extend(Ext.form.Field, {
         }
         
         this.getDatePicker().show();
-		if ( this.init_to_now ) {
-			this.getDatePicker().setToDate(new Date());
+        if ( this.init_to_now && !this.inited) {
+            this.getDatePicker().setToDate(new Date());
+            this.inited = true;
 		}
     },
     
@@ -413,7 +443,7 @@ Ext.form.DateTimePicker = Ext.extend(Ext.form.Field, {
         }
 
         if (this.rendered) {
-            this.fieldEl.dom.value = this.getValue(true);
+            this.fieldEl.dom.value = this.getValue(!!this.display_format);
         }
         
         return this;
