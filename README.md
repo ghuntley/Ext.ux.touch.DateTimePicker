@@ -26,4 +26,4 @@ datetimePicker = new Ext.ux.touch.DateTimePicker({
 
 Screenshot
 ----------
-![Ext.ux.touch.DateTimePicker](Ext.ux.touch.DateTimePicker/raw/master/screenshot.png)
+![Ext.ux.touch.DateTimePicker](https://raw.githubusercontent.com/ghuntley/Ext.ux.touch.DateTimePicker/master/screenshot.png)
